@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AdminPanel_Beta.Data
 {
-    public class ApplicationDbContext : IdentityDbContext
+    public class ApplicationDbContext : IdentityDbContext<Admin>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
