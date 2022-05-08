@@ -105,5 +105,9 @@ a, .btn-link {
 }
 
 .dashboard-card{
-    height: 200px;
+    height: 150px;
 }
+.dashboard_row{
+    margin-top: 100px;
+}
+
