@@ -103,3 +103,7 @@ a, .btn-link {
 .m-l-10{
     margin-left: 10px;
 }
+
+.dashboard-card{
+    height: 200px;
+}

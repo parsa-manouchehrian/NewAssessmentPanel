@@ -1,10 +1,51 @@
 ﻿@page "/"
+@using AdminPanel_Beta.Models
 @attribute [Authorize]
+@inject Facade facade
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Dashboard</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="row">
+    <div class="col-4">
+        <div class="card dashboard-card">
+            <div class="card-body">
+                <h1 class="primary_text text_center">
+                    @facade.context.Users.Count(s=>s.IsActive)
+                </h1>
+            </div>
+            <div class="card-footer">
+                <h4 class="primary_text text_center">Users</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="card dashboard-card">
+            <div class="card-body">
+                <h1 class="primary_text text_center">
+                   @facade.context.Assessments.Count(s=>s.IsActive)
+                </h1>
+            </div>
+            <div class="card-footer">
+                <h4 class="primary_text text_center">Assessments</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="card dashboard-card">
+            <div class="card-body">
+                <h1 class="primary_text text_center">
+                    @facade.context.Questions.Count()
+                </h1>
+            </div>
+            <div class="card-footer">
+                <h4 class="primary_text text_center">Active Questions</h4>
+            </div>
+        </div>
+    </div>
+</div>
 
-Welcome to your new app.
+@code{
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+    
+
+}
