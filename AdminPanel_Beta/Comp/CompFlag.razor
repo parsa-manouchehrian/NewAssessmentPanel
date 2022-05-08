@@ -1,0 +1,13 @@
+﻿@if (Flag != null && Flag.Value == true)
+{
+    <span class="oi oi-check" aria-hidden="true" style="color:green"></span>
+}
+else
+{
+    <span class="oi oi-x" aria-hidden="true" style="color:red"></span>
+}
+
+@code {
+    [Parameter]
+    public bool? Flag { get; set; }
+}

@@ -71,3 +71,25 @@ a, .btn-link {
     margin: auto;
     text-align: center
 }
+
+.pop-up {
+    position: fixed;
+    min-width: 40%;
+    left: 30%;
+    top: 20%;
+    z-index: 101;
+}
+
+.pointer:hover{
+    cursor:pointer;
+}
+
+.pop-up-parent{
+    background:#21212199;
+    position:fixed;
+    top:0;
+    left:0;
+    height:100%;
+    width:100%;
+    z-index:100;
+}
