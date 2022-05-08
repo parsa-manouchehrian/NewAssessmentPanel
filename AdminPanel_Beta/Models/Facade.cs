@@ -61,5 +61,14 @@ namespace AdminPanel_Beta.Models
         }
 
 
+        public List<AssessmentResultGroup> GetGroups(string keyword)
+        {
+            return context.AssessmentResultGroups
+                .Where(s => s.IsActive
+                && (string.IsNullOrEmpty(keyword) || (s.Title != null && s.Title.Contains(keyword))
+                                                  || (s.Description != null && s.Description.Contains(keyword))))
+                .ToList();
+        }
+
     }
 }
