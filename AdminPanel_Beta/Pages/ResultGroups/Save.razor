@@ -1,0 +1,96 @@
+@page "/ResultGroups/Add"
+@page "/ResultGroups/Edit/{Id:int}"
+@using AdminPanel_Beta.Models
+@inject Facade facade
+@inject NavigationManager NavigationManager
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="m-5 row">
+        <div class="alert alert-danger" role="alert">
+            @message
+        </div>
+    </div>
+}
+<div class="row">
+
+    <div class="col-12">
+        <div class="float-start">
+            <h3 class="primary_text">Save Group</h3>
+        </div>
+
+        <div class="float-end">
+            <a href="./">
+                <div class="btn btn-light">Cancel</div>
+            </a>
+            <div class="btn btn-success" @onclick="onSave">Save</div>
+        </div>
+
+    </div>
+</div>
+
+<div class="row m-t-10">
+    <div class="col-12 m-t-10">
+        <label class="text-primary">Title:</label>
+        <input @bind="Title" class="form-control"/>
+    </div>
+     <div class="col-12 m-t-10">
+         <label class="text-primary">Description:</label>
+         <textarea @bind="Description" class="form-control">
+     </textarea>
+        </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public int? Id { get; set; }
+
+    public string Title { get; set; }
+    public string Description { get; set; }
+
+    private string message = null;
+
+    protected override Task OnInitializedAsync()
+    {
+        if (Id != null)
+        {
+            var model = facade.context.AssessmentResultGroups.First(s => s.IsActive
+                                                                                  && s.Id == Id);
+            Title = model.Title;
+            Description = model.Description;
+        }
+        return base.OnInitializedAsync();
+    }
+
+    private void onSave()
+    {
+        if (string.IsNullOrEmpty(Title) || string.IsNullOrEmpty(Description))
+        {
+            message = "Both title and description are required. Please fill them and try to save again.";
+
+            return;
+        }
+        AssessmentResultGroup group;
+        if (Id != null)
+        {
+            group = facade.context.AssessmentResultGroups.First(s =>
+                s.Id == Id);
+        }
+        else
+        {
+            group = new AssessmentResultGroup();
+            facade.context.AssessmentResultGroups.Add(group);
+        }
+
+        group.IsActive = true;
+        group.Title = Title;
+        group.Description = Description;
+
+        facade.context.SaveChanges();
+
+        NavigationManager.NavigateTo("ResultGroups/index");
+    }
+    
+
+}
