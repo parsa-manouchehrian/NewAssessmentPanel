@@ -1,0 +1,51 @@
+@page "/ResultGroups/Details/{id:int}"
+@using AdminPanel_Beta.Models
+@using AdminPanel_Beta.Pages.Hints
+@inject Facade facade
+
+<PageTitle>Result Group Detail</PageTitle>
+
+<div class="row">
+    <div class="col-12">
+        <div class="float-start">
+            <h3 class="primary_text">@currentGroup.Title</h3>
+        </div>
+
+        <div class="float-end">
+            <a href="./">
+                <div class="btn btn-light">Back</div>
+            </a>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="row m-t-10">
+    <div class="col-1">
+        <p class="fw-bold primary_text float-end">Description: </p>
+    </div>
+    <div class="col-11">
+        <p class="float-start">@currentGroup.Description</p>
+    </div>
+</div>
+
+<br/>
+<br/>
+
+<HintList Groups="currentGroup.ResultTips.ToList()"/>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private AssessmentResultGroup currentGroup;
+
+    protected override Task OnInitializedAsync()
+    {
+        currentGroup = facade.GetResultGroup(Id);
+        
+        return base.OnInitializedAsync();
+    }
+
+}

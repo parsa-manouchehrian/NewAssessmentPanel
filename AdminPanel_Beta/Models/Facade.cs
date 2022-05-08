@@ -70,5 +70,21 @@ namespace AdminPanel_Beta.Models
                 .ToList();
         }
 
+        public AssessmentResultGroup GetResultGroup(int id)
+        {
+            return context.AssessmentResultGroups.Where(s => s.Id == id
+                                                             && s.IsActive)
+                .Include(s => 
+                    s.ResultTips.Where(a=>a.IsActive))
+                .First();
+        }
+
+        public List<ResultTip> GetTips(int groupId)
+        {
+            return context.ResultTips.Where(s => s.AssessmentResultGroupId == groupId
+                                                 && s.IsActive)
+                .Include(s=>s.AssessmentResultGroup)
+                .ToList();
+        }
     }
 }

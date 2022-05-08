@@ -1,0 +1,86 @@
+@using AdminPanel_Beta.Models
+@inject Facade facade
+@page "/ResultGroups/Details/{groupId:int}/hints"
+
+<div class="col-12">
+    <h3 class="primary_text float-start">Hints</h3>
+    <a href="/Hints/Add">
+        <button class="btn btn-success float-end">Add a new Hint</button>
+    </a>
+
+</div>
+
+
+<br/>
+<br/>
+<br/>
+
+
+<table class="table table-light table-bordered table-responsive table-striped">
+    <thead>
+    <tr>
+        <th>
+            Title
+        </th>
+        <th>
+            Description
+        </th>
+
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in dataList)
+    {
+        <tr>
+            <td>
+                @item.Title
+            </td>
+            <td>
+                @item.Content
+            </td>
+
+            <td>
+                <div class="w-auto">
+                    <a href="/ResultGroups/Edit/@item.Id">
+                        <button class="btn btn-light m-1">Edit</button>
+                    </a>
+
+                    <button class="btn btn-danger m-1" @onclick="()=>onDelete(item.Id)">Delete</button>
+                </div>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@code {
+
+    [Parameter]
+    public int? GroupId { get; set; } = null;
+    
+    [Parameter]
+    public List<ResultTip> Groups { get; set; }
+    
+    private List<ResultTip> dataList = new List<ResultTip>();
+
+    protected override Task OnInitializedAsync()
+    {
+        if (GroupId == null)
+        {
+            dataList = Groups;
+        }
+        else
+        {
+            dataList = facade.GetTips(GroupId.Value);
+        }
+        
+        return base.OnInitializedAsync();
+    }
+
+    private void onDelete(int id)
+    {
+        
+    }
+
+}
