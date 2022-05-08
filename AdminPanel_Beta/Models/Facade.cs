@@ -22,6 +22,31 @@ namespace AdminPanel_Beta.Models
         }
         
         
+        public List<User> GetUsers(string keyword,
+            string status,
+            bool hasAccepted,
+            bool hasNotAccepted,
+            int provinceId)
+        {
+            return context.Users
+                .Where(s => s.IsActive &&
+                            (string.IsNullOrEmpty(keyword) || 
+                             s.Firstname.Contains(keyword) ||
+                             s.Lastname.Contains(keyword) ||
+                             s.Phone.Contains(keyword) ||
+                             s.Email.Contains(keyword) ) &&
+                            (provinceId == -1 || 
+                             s.ProvinceId == provinceId) &&
+                            (string.IsNullOrEmpty(status) ||
+                             s.UserStatusName.Equals(status)) &&
+                            (s.HasAcceptAgreement == hasAccepted || 
+                             s.HasAcceptAgreement == !hasNotAccepted ))
+                .Include(s => s.Province)
+                .ThenInclude(s => s.Country)
+                .Include(s => s.UserStatusNameNavigation)
+                .ToList();
+        }
+        
         public List<Country> GetCountriesAndProvinces()
         {
             return context.Countries
