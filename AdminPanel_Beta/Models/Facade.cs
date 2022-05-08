@@ -20,6 +20,20 @@ namespace AdminPanel_Beta.Models
                 .Include(s => s.UserStatusNameNavigation)
                 .ToList();
         }
+        
+        
+        public List<Country> GetCountriesAndProvinces()
+        {
+            return context.Countries
+                .Include(s => s.Provinces)
+                .ToList();
+            
+        }
+
+        public List<UserStatus> GetStatuses()
+        {
+            return context.UserStatuses.ToList();
+        }
 
 
     }
