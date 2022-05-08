@@ -4,48 +4,127 @@
 
 
 <h3 class="primary_text">Users</h3>
-<br />
+
+
+<br/>
+<br/>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Filter</div>
+            </div>
+            <div class="card-body">
+
+                <div class="row">
+                    <div class="col-4">
+                        <label>Keyword</label><br/>
+                        <input @bind="Keyword" class="form-control m-3"/>
+                    </div>
+                    <div class="col-4">
+                        <label>Status</label><br/>
+                        <select @bind="Status" class="form-control m-3">
+                            <option value="" selected>All Statuses</option>
+                            @foreach (var item in statusList)
+                            {
+                                <option value="@item.Name">@item.Title</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-4">
+                        <div class="m-l-10">
+                            <label>Participation Acceptance</label><br/><br/>
+                            Accepted Status: <input type="checkbox" @bind="AcceptedStatus"/><br/>
+                            Not Accepted Status: <input type="checkbox" @bind="NotAcceptedStatus"/>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-4">
+                        <label>Countries</label><br/>
+                        <select @bind="CountryId" class="form-control m-3">
+                            <option value="-1" selected>All Countries</option>
+                            @foreach (var item in Countries)
+                            {
+                                <option value="@item.Id">@item.Title</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-4">
+                        <label>Provinces</label><br/>
+                        <select @bind="ProvinceId" class="form-control m-3">
+                            <option value="-1" selected>All Provinces</option>
+                            @foreach (var item in provinces)
+                            {
+                                <option value="@item.Id">@item.Title</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-4"></div>
+
+                </div>
+
+            </div>
+            <div class="card-footer">
+                <button class="btn btn-primary float-end" @onclick="onSearch">Search</button>
+                <button class="btn float-end" @onclick="onClear">Clear</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<br/>
+<br/>
 <br/>
 <table class="table table-light table-bordered table-responsive table-striped">
     <thead>
-        <tr>
-            <th></th>
-            <th>Firstname</th>
-            <th>Lastname</th>
-            <th>Has Accepted the Agreement</th>
-            <th>Has Accepted the Participation</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Registred DateTime</th>
-            <th>User Status</th>
-            <th>Province</th>
-            <th>Country</th>
-        </tr>
+    <tr>
+        <th></th>
+        <th>Firstname</th>
+        <th>Lastname</th>
+        <th>Has Accepted the Agreement</th>
+        <th>Has Accepted the Participation</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Registred DateTime</th>
+        <th>User Status</th>
+        <th>Province</th>
+        <th>Country</th>
+    </tr>
     </thead>
 
     <tbody>
-        @foreach (var item in ListOfUser)
-        {
-            <tr>
-                <td>
-                    <span class="oi oi-trash pointer" aria-hidden="true"
+    @foreach (var item in ListOfUser)
+    {
+        <tr>
+            <td>
+                <span class="oi oi-trash pointer" aria-hidden="true"
                       style="color:red;font-size:20px;"
-                      @onclick="()=>{onDelete(item.Id);}"></span>
+                      @onclick="() => { onDelete(item.Id); }">
+                </span>
 
-                </td>
-                <td>@item.Firstname</td>
-                <td>@item.Lastname</td>
-                <td><CompFlag Flag=item.HasAcceptAgreement /></td>
-                <td><CompFlag Flag=item.HasAcceptResearchParticipation /></td>
-                <td>@item.Email</td>
-                <td>@item.Phone</td>
-                <td>@item.RegisterDateTime.ToString("dd/M/yyyy hh:mm:ss")</td>
-                <td>@item.UserStatusNameNavigation.Title</td>
-                <td>@item.Province.Title</td>
-                <td>@item.Province.Country.Title</td>
+            </td>
+            <td>@item.Firstname</td>
+            <td>@item.Lastname</td>
+            <td>
+                <CompFlag Flag=item.HasAcceptAgreement/>
+            </td>
+            <td>
+                <CompFlag Flag=item.HasAcceptResearchParticipation/>
+            </td>
+            <td>@item.Email</td>
+            <td>@item.Phone</td>
+            <td>@item.RegisterDateTime.ToString("dd/M/yyyy hh:mm:ss")</td>
+            <td>@item.UserStatusNameNavigation.Title</td>
+            <td>@item.Province.Title</td>
+            <td>@item.Province.Country.Title</td>
 
-            </tr>
-        }
+        </tr>
+    }
     </tbody>
 </table>
 
@@ -53,18 +132,68 @@
 
     <CompPopup @ref=popUp OnResult=onPopupResult>
         <Body>
-            <p>Do you want to remove @(SelectedUser.Firstname + " " + SelectedUser.Lastname) ?</p>
+        <p>Do you want to remove @(SelectedUser.Firstname + " " + SelectedUser.Lastname) ?</p>
         </Body>
     </CompPopup>
 </CascadingValue>
 
 
 @code {
+    public string Keyword { get; set; }
+    public string Status { get; set; }
+    public bool AcceptedStatus { get; set; } = true;
+    public bool NotAcceptedStatus { get; set; } = true;
+    public int ProvinceId { get; set; } = -1;
+    private int cid;
+
+    public int CountryId
+    {
+        get => cid;
+        set
+        {
+            cid = value;
+            var country = Countries.FirstOrDefault(s => s.Id == value);
+            if (country != null)
+            {
+                provinces = country.Provinces.ToList();
+            }
+            else
+            {
+                provinces = new List<Province>();
+            }
+        }
+    }
+
     private List<User> ListOfUser = new List<User>();
+    private List<Country> Countries = new List<Country>();
+    private List<Province> provinces = new List<Province>();
+    private List<UserStatus> statusList = new List<UserStatus>();
+
     private CompPopup popUp;
     private bool Show;
 
     private User SelectedUser;
+
+
+    private void onClear()
+    {
+        ListOfUser = facade.GetUsers();
+        Keyword = "";
+        CountryId = -1;
+        ProvinceId = -1;
+        AcceptedStatus = true;
+        NotAcceptedStatus = true;
+        Status = "";
+    }
+
+    private void onSearch()
+    {
+        ListOfUser = facade.GetUsers(Keyword,
+            Status,
+            AcceptedStatus,
+            NotAcceptedStatus,
+            ProvinceId);
+    }
 
     private void onPopupResult(bool isAccept)
     {
@@ -82,13 +211,23 @@
     {
         Show = true;
 
-        SelectedUser = ListOfUser.First(s=>s.Id == userId);
-
+        SelectedUser = ListOfUser.First(s => s.Id == userId);
     }
 
     protected override Task OnInitializedAsync()
     {
         ListOfUser = facade.GetUsers();
+        Keyword = "";
+        CountryId = -1;
+        ProvinceId = -1;
+        AcceptedStatus = true;
+        NotAcceptedStatus = true;
+        Status = "";
+        Countries = facade.GetCountriesAndProvinces();
+        statusList = facade.GetStatuses();
+
+
         return base.OnInitializedAsync();
     }
+
 }
