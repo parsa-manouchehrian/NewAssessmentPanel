@@ -6,8 +6,13 @@
 <PageTitle>Result Groups</PageTitle>
 
 
-<h3 class="primary_text">Result Groups</h3>
+<div class="col-12">
+    <h3 class="primary_text float-start">Result Groups</h3>
+    <a href="/ResultGroups/Add">
+        <button class="btn btn-success float-end">Add a new Group</button>
+    </a>
 
+</div>
 
 <br/>
 <br/>
@@ -16,7 +21,7 @@
     <div class="col-3"></div>
     <div class="col-6">
 
-        <label>Keyword</label><br/>
+        <label class="primary_text fw-bold">Keyword</label><br/>
         <input @bind="Keyword" class="form-control m-3"/>
         <button class="btn btn-primary float-end" @onclick="onSearch">Search</button>
         <button class="btn float-end" @onclick="onClear">Clear</button>
@@ -56,10 +61,10 @@
 
             <td>
                 <div class="w-auto">
-                    <a href="/Edit/@item.Id">
+                    <a href="/ResultGroups/Edit/@item.Id">
                         <button class="btn btn-light m-1">Edit</button>
                     </a>
-                    <a href="/Details/@item.Id">
+                    <a href="/ResultGroups/Details/@item.Id">
                         <button class="btn btn-primary m-1">Details</button>
                     </a>
 
@@ -71,9 +76,23 @@
     </tbody>
 </table>
 
+<CascadingValue Name="Show" Value=Show>
+
+    <CompPopup @ref=popUp OnResult=onPopupResult>
+        <Body>
+        <p>Do you want to remove @selectedGroup.Title ?</p>
+        </Body>
+    </CompPopup>
+</CascadingValue>
+
+
 @code {
     private string Keyword = "";
     private List<AssessmentResultGroup> dataList = new List<AssessmentResultGroup>();
+    private AssessmentResultGroup selectedGroup;
+
+    private CompPopup popUp;
+    private bool Show;
 
     private void onSearch()
     {
@@ -91,6 +110,26 @@
         dataList = facade.GetGroups(Keyword);
 
         return base.OnInitializedAsync();
+    }
+
+
+    private void onPopupResult(bool isAccept)
+    {
+        Show = false;
+
+        if (isAccept)
+        {
+            selectedGroup.IsActive = false;
+            facade.context.SaveChanges();
+            dataList.Remove(selectedGroup);
+        }
+    }
+
+    private void onDelete(int groupId)
+    {
+        Show = true;
+
+        selectedGroup = dataList.First(s => s.Id == groupId);
     }
 
 }
