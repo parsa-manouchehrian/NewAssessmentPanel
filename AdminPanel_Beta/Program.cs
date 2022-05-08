@@ -25,10 +25,15 @@ builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuth
 builder.Services.AddSingleton<WeatherForecastService>();
 
 
+
+
 var mainConnectionString = builder.Configuration["MainDatabase:Connection"];
 
 builder.Services.AddDbContext<AssessmentDBContext>(options =>
     options.UseSqlServer(mainConnectionString));
+
+builder.Services.AddScoped<Facade>();
+
 
 var app = builder.Build();
 

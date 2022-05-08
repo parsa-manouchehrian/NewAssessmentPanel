@@ -1,0 +1,94 @@
+﻿@using AdminPanel_Beta.Models
+@inject Facade facade
+@page "/users"
+
+
+<h3 class="primary_text">Users</h3>
+<br />
+<br/>
+<table class="table table-light table-bordered table-responsive table-striped">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Firstname</th>
+            <th>Lastname</th>
+            <th>Has Accepted the Agreement</th>
+            <th>Has Accepted the Participation</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Registred DateTime</th>
+            <th>User Status</th>
+            <th>Province</th>
+            <th>Country</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in ListOfUser)
+        {
+            <tr>
+                <td>
+                    <span class="oi oi-trash pointer" aria-hidden="true"
+                      style="color:red;font-size:20px;"
+                      @onclick="()=>{onDelete(item.Id);}"></span>
+
+                </td>
+                <td>@item.Firstname</td>
+                <td>@item.Lastname</td>
+                <td><CompFlag Flag=item.HasAcceptAgreement /></td>
+                <td><CompFlag Flag=item.HasAcceptResearchParticipation /></td>
+                <td>@item.Email</td>
+                <td>@item.Phone</td>
+                <td>@item.RegisterDateTime.ToString("dd/M/yyyy hh:mm:ss")</td>
+                <td>@item.UserStatusNameNavigation.Title</td>
+                <td>@item.Province.Title</td>
+                <td>@item.Province.Country.Title</td>
+
+            </tr>
+        }
+    </tbody>
+</table>
+
+<CascadingValue Name="Show" Value=Show>
+
+    <CompPopup @ref=popUp OnResult=onPopupResult>
+        <Body>
+            <p>Do you want to remove @(SelectedUser.Firstname + " " + SelectedUser.Lastname) ?</p>
+        </Body>
+    </CompPopup>
+</CascadingValue>
+
+
+@code {
+    private List<User> ListOfUser = new List<User>();
+    private CompPopup popUp;
+    private bool Show;
+
+    private User SelectedUser;
+
+    private void onPopupResult(bool isAccept)
+    {
+        Show = false;
+
+        if (isAccept)
+        {
+            SelectedUser.IsActive = false;
+            facade.context.SaveChanges();
+            ListOfUser.Remove(SelectedUser);
+        }
+    }
+
+    private void onDelete(int userId)
+    {
+        Show = true;
+
+        SelectedUser = ListOfUser.First(s=>s.Id == userId);
+
+    }
+
+    protected override Task OnInitializedAsync()
+    {
+        ListOfUser = facade.GetUsers();
+        return base.OnInitializedAsync();
+    }
+}

@@ -1,0 +1,42 @@
+﻿@if (Show)
+{
+    <div class="pop-up-parent">
+        <div class="pop-up card" @onclick="()=>{}">
+            <div class="card-header">
+                <h5 class="primary_text float-start">Confirmation</h5>
+                <i class="float-end oi oi-x pointer" @onclick="OnCancel"></i>
+            </div>
+            <div class="card-body">
+                @Body
+            </div>
+            <div class="card-footer">
+                <div class="float-end">
+                    <button class="btn btn-success" @onclick="OnAccept">OK</button>
+                    <button class="btn btn-danger" @onclick="OnCancel">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public EventCallback<bool> OnResult { get; set; }
+
+    [CascadingParameter(Name = "Show")]
+    public bool Show { get; set; }
+
+    [Parameter]
+    public RenderFragment Body { get; set; }
+
+    private void OnCancel()
+    {
+        OnResult.InvokeAsync(false);
+    }
+
+    private void OnAccept()
+    {
+        OnResult.InvokeAsync(true);
+    }
+}
