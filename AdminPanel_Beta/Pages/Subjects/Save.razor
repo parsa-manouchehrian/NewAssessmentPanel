@@ -1,0 +1,107 @@
+@page "/Subjects/Add"
+@page "/Subjects/Edit/{Id:int}"
+@using AdminPanel_Beta.Models
+@using AdminPanel_Beta.Pages.Questions
+@inject Facade facade
+@inject NavigationManager NavigationManager
+
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="m-5 row">
+        <div class="alert alert-danger" role="alert">
+            @message
+        </div>
+    </div>
+}
+
+<div class="row">
+
+    <div class="col-12">
+        <div class="float-start">
+            <h3 class="primary_text">Save Subject</h3>
+        </div>
+
+        <div class="float-end">
+            <button class="btn btn-light" @onclick="onBack">Cancel</button>
+            <div class="btn btn-success" @onclick="onSave">Save</div>
+        </div>
+
+    </div>
+</div>
+
+<div class="row m-t-10">
+    <div class="col-12 m-t-10">
+        <label class="text-primary">Title:</label>
+        <input @bind="Title" class="form-control"/>
+    </div>
+    <div class="col-12 m-t-10">
+        <label class="text-primary">Next Question:</label>
+        <QuestionLookup SelectedQuestion="@firstQuestion" OnQuestionSelected="OnQuestionSelected"></QuestionLookup>
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public int? Id { get; set; }
+
+    public string Title { get; set; }
+
+    private Question firstQuestion = null;
+
+    private string message = null;
+
+    private void OnQuestionSelected(Question question)
+    {
+        firstQuestion = question;
+    }
+
+    protected override Task OnInitializedAsync()
+    {
+        if (Id != null)
+        {
+            var model = facade.context.Subjects.First(s => s.IsActive.Value
+                                                           && s.Id == Id);
+            Title = model.Title;
+            firstQuestion = model.FirstQuestion;
+
+        }
+        return base.OnInitializedAsync();
+    }
+
+    private void onSave()
+    {
+        if (string.IsNullOrEmpty(Title) || firstQuestion == null)
+        {
+            message = "Both title and first question are required. Please fill them and try to save again.";
+
+            return;
+        }
+        Subject subject;
+        if (Id != null)
+        {
+            subject = facade.context.Subjects.First(s =>
+                s.Id == Id);
+        }
+        else
+        {
+            subject = new Subject();
+            facade.context.Subjects.Add(subject);
+        }
+
+        subject.IsActive = true;
+        subject.Title = Title;
+        subject.FirstQuestionId = firstQuestion.Id;
+
+        facade.context.SaveChanges();
+
+        onBack();
+    }
+
+    private void onBack()
+    {
+        NavigationManager.NavigateTo("Subjects/index");
+    }
+
+}

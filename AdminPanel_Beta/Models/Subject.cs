@@ -14,6 +14,8 @@ namespace AdminPanel_Beta.Models
         public string? Title { get; set; }
         public int? FirstQuestionId { get; set; }
 
+        public bool? IsActive { get; set; }
+
         public virtual Question? FirstQuestion { get; set; }
         public virtual ICollection<Assessment> Assessments { get; set; }
     }

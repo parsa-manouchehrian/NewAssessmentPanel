@@ -91,13 +91,34 @@ namespace AdminPanel_Beta.Models
 
         public List<Subject> GetSubjects(string keyword)
         {
-            return context.Subjects.Where(s => string.IsNullOrEmpty(keyword) &&
-                                               (
-                                                s.Title.Contains(keyword) ||
-                                               s.FirstQuestion.Code.Contains(keyword)))
+            return context.Subjects.Where(s => s.IsActive!.Value == true &&
+                                               (string.IsNullOrEmpty(keyword) ||
+                                              
+                                                 s.Title.Contains(keyword) ||
+                                                 s.FirstQuestion.Code.Contains(keyword)))
                 .Include(s => s.FirstQuestion)
                 .ToList();
         }
-        
+
+        private List<Question>? _questionCache = null;
+
+        private List<Question> getQuestions()
+        {
+            if (_questionCache != null)
+                return _questionCache;
+            
+            _questionCache = context.Questions.ToList();
+            return _questionCache;
+        }
+        public List<Question> QuestionLookup(string keyword)
+        {
+            
+            return getQuestions().Where(s => s.IsActive.Value
+                                           && (string.IsNullOrEmpty(keyword) ||
+                                               s.Code.Contains(keyword) ||
+                                               s.Body.Contains(keyword)))
+                .Take(5).ToList();
+        }
+
     }
 }

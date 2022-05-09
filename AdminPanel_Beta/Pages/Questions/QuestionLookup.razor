@@ -1,0 +1,78 @@
+@using AdminPanel_Beta.Models
+@inject Facade facade
+
+@if (SelectedQuestion == null)
+{
+    <div class="row">
+        <div class="col-12">
+            <input @bind="keyword" 
+                   @bind:event="oninput"
+                   class="form-control" placeholder="Search for question: "/>
+        </div>
+        <br/>
+        <div class="col-12">
+            <table class="table table-light table-striped">
+                <tbody>
+                @foreach (var item in questions)
+                {
+                    <tr>
+                        <td>@item.Code</td>
+                        <td>@item.Body.Substring(0, (item.Body.Length > 40 ? 40 : item.Body.Length)) ...</td>
+                        <td>
+                            <button class="btn btn-success" @onclick="() => OnSelectQuestion(item.Id)">Select</button>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+        @if (!string.IsNullOrEmpty(keyword) && questions.Count == 0)
+        {
+            <p class="primary_text text_center">Not Founded</p>
+        }
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-12">
+            <button class="btn btn-danger"@onclick="OnQuestionRemoved">
+                <span class="oi oi-x" aria-hidden="true"></span>@SelectedQuestion.Code
+            </button>
+        </div>
+    </div>
+}
+
+@code {
+    private List<Question> questions = new List<Question>();
+    private string _keyword = "";
+
+    public string keyword
+    {
+        get => _keyword;
+        set
+        {
+            _keyword = value;
+            questions = facade.QuestionLookup(keyword); 
+        }
+    }
+
+    [Parameter]
+    public Question? SelectedQuestion { get; set; } = null;
+
+    [Parameter]
+    public EventCallback<Question> OnQuestionSelected { get; set; }
+
+    private void OnSelectQuestion(int id)
+    {
+        SelectedQuestion = questions.First(s => s.Id == id);
+        OnQuestionSelected.InvokeAsync(SelectedQuestion);
+
+    }
+
+    private void OnQuestionRemoved()
+    {
+        SelectedQuestion = null;
+        OnQuestionSelected.InvokeAsync(null);
+    }
+}

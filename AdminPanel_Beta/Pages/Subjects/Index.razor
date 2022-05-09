@@ -4,13 +4,13 @@
 
 
 
-<PageTitle>Result Groups</PageTitle>
+<PageTitle>Subjects</PageTitle>
 
 
 <div class="col-12">
-    <h3 class="primary_text float-start">Result Groups</h3>
-    <a href="/ResultGroups/Add">
-        <button class="btn btn-success float-end">Add a new Group</button>
+    <h3 class="primary_text float-start">Subjects</h3>
+    <a href="/Subjects/Add">
+        <button class="btn btn-success float-end">Add a new Subject</button>
     </a>
 
 </div>
@@ -112,7 +112,7 @@
 
         if (isAccept)
         {
-            //selectedSubject.IsActive = false;
+            selectedSubject.IsActive = false;
             facade.context.SaveChanges();
             dataList.Remove(selectedSubject);
         }

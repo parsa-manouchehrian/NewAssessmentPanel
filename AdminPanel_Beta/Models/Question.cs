@@ -19,6 +19,7 @@ namespace AdminPanel_Beta.Models
         public int? NextQuestionId { get; set; }
         public string? QuestionTypeName { get; set; }
         public string? Code { get; set; }
+        public bool? IsActive { get; set; }
 
         public virtual Question? NextQuestion { get; set; }
         public virtual QuestionType? QuestionTypeNameNavigation { get; set; }
