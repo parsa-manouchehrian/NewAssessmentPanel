@@ -2,6 +2,7 @@
 @using AdminPanel_Beta.Models
 @using AdminPanel_Beta.Pages.Hints
 @inject Facade facade
+@inject NavigationManager NavigationManager 
 
 <PageTitle>Result Group Detail</PageTitle>
 
@@ -12,9 +13,7 @@
         </div>
 
         <div class="float-end">
-            <a href="./">
-                <div class="btn btn-light">Back</div>
-            </a>
+                <button @onclick="onBack" class="btn btn-light">Back</button>
         </div>
     </div>
 </div>
@@ -33,7 +32,7 @@
 <br/>
 <br/>
 
-<HintList Groups="currentGroup.ResultTips.ToList()"/>
+<HintList GroupId="Id" Groups="currentGroup.ResultTips.ToList()"/>
 
 @code {
     [Parameter]
@@ -46,6 +45,11 @@
         currentGroup = facade.GetResultGroup(Id);
         
         return base.OnInitializedAsync();
+    }
+
+    private void onBack()
+    {
+        NavigationManager.NavigateTo("ResultGroups/index");
     }
 
 }

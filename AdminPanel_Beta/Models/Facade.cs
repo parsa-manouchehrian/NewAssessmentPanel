@@ -79,9 +79,10 @@ namespace AdminPanel_Beta.Models
                 .First();
         }
 
-        public List<ResultTip> GetTips(int groupId)
+        public List<ResultTip> GetTips(int? groupId)
         {
-            return context.ResultTips.Where(s => s.AssessmentResultGroupId == groupId
+            return context.ResultTips.Where(s => (groupId== null ||
+                                                  s.AssessmentResultGroupId == groupId)
                                                  && s.IsActive)
                 .Include(s=>s.AssessmentResultGroup)
                 .ToList();

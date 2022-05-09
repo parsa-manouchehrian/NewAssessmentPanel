@@ -4,17 +4,34 @@
 
 <div class="col-12">
     <h3 class="primary_text float-start">Hints</h3>
-    <a href="/Hints/Add">
-        <button class="btn btn-success float-end">Add a new Hint</button>
-    </a>
+    @if(GroupId != null){
+        <a href="/ResultGroups/Details/@GroupId/Hints/Add">
+            <button class="btn btn-success float-end">Add a new Hint</button>
+        </a>
+        
+    }
 
 </div>
 
+<br/>
+<br/>
+
+<div class="row">
+    <div class="col-3"></div>
+    <div class="col-6">
+
+        <label class="primary_text fw-bold">Keyword</label><br/>
+        <input @bind="Keyword" class="form-control m-3"/>
+        <button class="btn btn-primary float-end" @onclick="onSearch">Search</button>
+        <button class="btn float-end" @onclick="onClear">Clear</button>
+
+    </div>
+    <div class="col-3"></div>
+</div>
 
 <br/>
 <br/>
 <br/>
-
 
 <table class="table table-light table-bordered table-responsive table-striped">
     <thead>
@@ -24,6 +41,9 @@
         </th>
         <th>
             Description
+        </th>
+        <th>
+            Group
         </th>
 
         <th></th>
@@ -38,6 +58,10 @@
             </td>
             <td>
                 @item.Content
+            </td>
+            
+            <td>
+                @item.AssessmentResultGroup.Title
             </td>
 
             <td>
@@ -58,21 +82,24 @@
 
     [Parameter]
     public int? GroupId { get; set; } = null;
-    
+
     [Parameter]
-    public List<ResultTip> Groups { get; set; }
+    public List<ResultTip>? Groups { get; set; } = null;
     
     private List<ResultTip> dataList = new List<ResultTip>();
 
+    private string Keyword;
+
     protected override Task OnInitializedAsync()
     {
-        if (GroupId == null)
+        if (Groups != null)
         {
             dataList = Groups;
         }
         else
         {
-            dataList = facade.GetTips(GroupId.Value);
+            Groups = facade.GetTips(GroupId.Value);
+            dataList = Groups;
         }
         
         return base.OnInitializedAsync();
@@ -81,6 +108,18 @@
     private void onDelete(int id)
     {
         
+    }
+
+    private void onSearch()
+    {
+        dataList = Groups.Where(s => s.Title.Contains(Keyword)
+                                     || s.Content.Contains(Keyword)).ToList();
+    }
+
+    private void onClear()
+    {
+        Keyword = "";
+        dataList = Groups;
     }
 
 }
