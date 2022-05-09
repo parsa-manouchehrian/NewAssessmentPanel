@@ -57,7 +57,14 @@
                 @item.Title
             </td>
             <td>
-                @item.Content
+                @if (item.IsLink)
+                {
+                    <a href="@item.Content"> @item.Content</a>
+                }
+                else
+                {
+                    <p> @item.Content </p>
+                }
             </td>
             
             <td>
@@ -66,7 +73,7 @@
 
             <td>
                 <div class="w-auto">
-                    <a href="/ResultGroups/Edit/@item.Id">
+                    <a href="/ResultGroups/Details/@GroupId/Hints/Edit/@item.Id">
                         <button class="btn btn-light m-1">Edit</button>
                     </a>
 
