@@ -78,7 +78,19 @@
     </tbody>
 </table>
 
+<CascadingValue Name="Show" Value=Show>
+
+    <CompPopup @ref=popUp OnResult=onPopupResult>
+        <Body>
+        <p>Do you want to remove @selectedTip.Title ?</p>
+        </Body>
+    </CompPopup>
+</CascadingValue>
+
 @code {
+
+    private CompPopup popUp;
+    private bool Show;
 
     [Parameter]
     public int? GroupId { get; set; } = null;
@@ -87,6 +99,8 @@
     public List<ResultTip>? Groups { get; set; } = null;
     
     private List<ResultTip> dataList = new List<ResultTip>();
+
+    private ResultTip selectedTip;
 
     private string Keyword;
 
@@ -105,9 +119,24 @@
         return base.OnInitializedAsync();
     }
 
-    private void onDelete(int id)
+    private void onPopupResult(bool isAccept)
     {
-        
+        Show = false;
+
+        if (isAccept)
+        {
+            selectedTip.IsActive = false;
+            facade.context.SaveChanges();
+            Groups.Remove(selectedTip);
+            dataList.Remove(selectedTip);
+        }
+    }
+
+    private void onDelete(int groupId)
+    {
+        Show = true;
+
+        selectedTip = Groups.First(s => s.Id == groupId);
     }
 
     private void onSearch()
