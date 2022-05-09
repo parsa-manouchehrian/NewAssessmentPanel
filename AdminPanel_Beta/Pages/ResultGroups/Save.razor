@@ -20,9 +20,7 @@
         </div>
 
         <div class="float-end">
-            <a href="./">
-                <div class="btn btn-light">Cancel</div>
-            </a>
+            <button class="btn btn-light" @onclick="onBack">Cancel</button>
             <div class="btn btn-success" @onclick="onSave">Save</div>
         </div>
 
@@ -34,11 +32,11 @@
         <label class="text-primary">Title:</label>
         <input @bind="Title" class="form-control"/>
     </div>
-     <div class="col-12 m-t-10">
-         <label class="text-primary">Description:</label>
-         <textarea @bind="Description" class="form-control">
+    <div class="col-12 m-t-10">
+        <label class="text-primary">Description:</label>
+        <textarea @bind="Description" class="form-control">
      </textarea>
-        </div>
+    </div>
 </div>
 
 @code {
@@ -56,7 +54,7 @@
         if (Id != null)
         {
             var model = facade.context.AssessmentResultGroups.First(s => s.IsActive
-                                                                                  && s.Id == Id);
+                                                                         && s.Id == Id);
             Title = model.Title;
             Description = model.Description;
         }
@@ -92,5 +90,10 @@
         NavigationManager.NavigateTo("ResultGroups/index");
     }
     
+    private void onBack()
+    {
+        NavigationManager.NavigateTo("ResultGroups/index");
+    }
+
 
 }
