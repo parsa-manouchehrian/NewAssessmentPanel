@@ -1,0 +1,117 @@
+@page "/ResultGroups/Details/{groupId:int}/Hints/Add"
+@page "/ResultGroups/Details/{groupId:int}/Hints/Edit/{id:int}"
+@using AdminPanel_Beta.Models
+@inject Facade facade
+@inject NavigationManager NavigationManager
+
+<h3>Save</h3>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="m-5 row">
+        <div class="alert alert-danger" role="alert">
+            @message
+        </div>
+    </div>
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="float-start">
+            <h3 class="primary_text">Save Hint</h3>
+        </div>
+        <div class="float-end">
+            <button class="btn btn-light" @onclick="onBack">Cancel</button>
+            <div class="btn btn-success" @onclick="onSave">Save</div>
+        </div>
+
+    </div>
+</div>
+
+
+<div class="row m-t-10">
+    <div class="col-12 m-t-10">
+        <label class="text-primary">Title:</label>
+        <input @bind="model.Title" class="form-control"/>
+    </div>
+    <div class="col-12 m-t-10">
+        <label class="text-primary">Type:</label>
+        <select @bind="type" class="form-control">
+            <option value="1">Link</option>
+            <option value="0">Text</option>
+        </select>
+    </div>
+    <div class="col-12 m-t-10">
+        <label class="text-primary">Content:</label>
+        @if (type == 1)
+        {
+            <input type="url" @bind="model.Content" class="form-control"/>
+        }
+        else
+        {
+            <textarea @bind="model.Content" class="form-control"></textarea>
+        }
+    </div>
+</div>
+
+
+@code {
+
+    [Parameter]
+    public int groupId { get; set; }
+
+    [Parameter]
+    public int? Id { get; set; }
+
+    private ResultTip model;
+
+    private string message;
+    
+    private int type = 0;
+
+    protected override Task OnInitializedAsync()
+    {
+        if (Id == null)
+        {
+            model = new ResultTip()
+            {
+                IsActive = true,
+                IsLink = false,
+                AssessmentResultGroupId = groupId
+            };
+        }
+        else
+        {
+            model = facade.context.ResultTips.First(s => s.Id == Id
+                                                                  && s.IsActive);
+        }
+        return base.OnInitializedAsync();
+    }
+
+    private void onSave()
+    {
+        if (string.IsNullOrEmpty(model.Title)
+            || string.IsNullOrEmpty(model.Content))
+        {
+            message = "The title and description are required";
+            return;
+        }
+
+        model.IsLink = type == 1;
+        
+        if (Id == null)
+        {
+            facade.context.ResultTips.Add(model);
+        }
+
+        facade.context.SaveChanges();
+        
+        onBack();
+    }
+
+    private void onBack()
+    {
+        NavigationManager.NavigateTo($"/ResultGroups/Details/{groupId}");
+    }
+
+}
