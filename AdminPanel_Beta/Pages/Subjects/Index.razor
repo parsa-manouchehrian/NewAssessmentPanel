@@ -1,0 +1,127 @@
+@page "/Subjects/Index"
+@using AdminPanel_Beta.Models
+@inject Facade facade
+
+
+
+<PageTitle>Result Groups</PageTitle>
+
+
+<div class="col-12">
+    <h3 class="primary_text float-start">Result Groups</h3>
+    <a href="/ResultGroups/Add">
+        <button class="btn btn-success float-end">Add a new Group</button>
+    </a>
+
+</div>
+
+<br/>
+<br/>
+
+<div class="row">
+    <div class="col-3"></div>
+    <div class="col-6">
+
+        <label class="primary_text fw-bold">Keyword</label><br/>
+        <input @bind="Keyword" class="form-control m-3"/>
+        <button class="btn btn-primary float-end" @onclick="onSearch">Search</button>
+        <button class="btn float-end" @onclick="onClear">Clear</button>
+
+    </div>
+    <div class="col-3"></div>
+</div>
+
+<br/>
+<br/>
+<br/>
+
+<table class="table table-light table-bordered table-responsive table-striped">
+    <thead>
+    <tr>
+        <th>
+            Title
+        </th>
+        <th>
+            First Question Code
+        </th>
+
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in dataList)
+    {
+        <tr>
+            <td>
+                @item.Title
+            </td>
+            <td>
+                @item.FirstQuestion.Code
+            </td>
+
+            <td>
+                <div class="w-auto">
+                    <a href="/Subjects/Edit/@item.Id">
+                        <button class="btn btn-light m-1">Edit</button>
+                    </a>
+                    <button class="btn btn-danger m-1" @onclick="()=>onDelete(item.Id)">Delete</button>
+                </div>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<CascadingValue Name="Show" Value=Show>
+
+    <CompPopup @ref=popUp OnResult=onPopupResult>
+        <Body>
+        <p>Do you want to remove @selectedSubject.Title ?</p>
+        </Body>
+    </CompPopup>
+</CascadingValue>
+
+@code {
+    private string Keyword;
+    private List<Subject> dataList;
+    private CompPopup popUp;
+    private bool Show;
+    private Subject selectedSubject;
+
+    protected override Task OnInitializedAsync()
+    {
+        dataList = facade.GetSubjects(Keyword);
+
+        return base.OnInitializedAsync();
+    }
+    
+    private void onSearch()
+    {
+        dataList = facade.GetSubjects(Keyword);
+    }
+
+    private void onClear()
+    {
+        Keyword = "";
+        dataList = facade.GetSubjects(Keyword);
+    }
+    
+    private void onPopupResult(bool isAccept)
+    {
+        Show = false;
+
+        if (isAccept)
+        {
+            //selectedSubject.IsActive = false;
+            facade.context.SaveChanges();
+            dataList.Remove(selectedSubject);
+        }
+    }
+
+    private void onDelete(int subjectId)
+    {
+        Show = true;
+
+        selectedSubject = dataList.First(s => s.Id == subjectId);
+    }
+}

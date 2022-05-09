@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace AdminPanel_Beta.Models
 {
@@ -87,5 +88,16 @@ namespace AdminPanel_Beta.Models
                 .Include(s=>s.AssessmentResultGroup)
                 .ToList();
         }
+
+        public List<Subject> GetSubjects(string keyword)
+        {
+            return context.Subjects.Where(s => string.IsNullOrEmpty(keyword) &&
+                                               (
+                                                s.Title.Contains(keyword) ||
+                                               s.FirstQuestion.Code.Contains(keyword)))
+                .Include(s => s.FirstQuestion)
+                .ToList();
+        }
+        
     }
 }
