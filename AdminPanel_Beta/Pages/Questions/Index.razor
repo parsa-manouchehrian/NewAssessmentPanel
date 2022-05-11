@@ -1,0 +1,186 @@
+@page "/Questions"
+@using AdminPanel_Beta.Models
+@inject Facade facade
+@inject NavigationManager NavigationManager
+
+<PageTitle>Questions</PageTitle>
+
+
+<div class="row">
+
+    <div class="col-12">
+        <div class="float-start">
+            <h3 class="primary_text">Questions</h3>
+        </div>
+
+        <div class="float-end">
+            <a href="/Questions/Add">
+                <button class="btn btn-light">Tree View</button>
+            </a>
+            <a href="/Questions/Add">
+                <button class="btn btn-success">Add</button>
+            </a>
+        </div>
+    </div>
+</div>
+
+<br/>
+<br/>
+
+<div class="row">
+    <div class="col-3"></div>
+    <div class="col-6">
+
+        <label class="primary_text fw-bold">Keyword</label><br/>
+        <input @bind="Keyword" class="form-control m-3"/>
+        <button class="btn btn-primary float-end" @onclick="onSearch">Search</button>
+        <button class="btn float-end" @onclick="onClear">Clear</button>
+
+    </div>
+    <div class="col-3"></div>
+</div>
+
+<br/>
+<br/>
+<br/>
+
+
+<table class="table table-light table-bordered table-responsive table-striped">
+    <thead>
+    <tr>
+        <th></th>
+
+        <th>
+            Code
+        </th>
+        <th>
+            Text
+        </th>
+        <th>
+            Question Type
+        </th>
+        <th>
+            Possible Next Questions Code
+        </th>
+
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in dataList)
+    {
+        <tr>
+            <td>
+                <div class="w-auto">
+                    <a href="/ResultGroups/Edit/@item.Id">
+                        <button class="btn btn-light m-1">Edit</button>
+                    </a>
+                    <a href="/ResultGroups/Details/@item.Id">
+                        <button class="btn btn-primary m-1">Details</button>
+                    </a>
+
+                    <button class="btn btn-danger m-1" @onclick="() => onDelete(item.Id)">Delete</button>
+                </div>
+            </td>
+
+            <td>
+
+                <a href="/Questions/details/@item.Code"
+                   class="btn btn-light m-1">
+                    @item.Code
+                </a>
+            </td>
+            <td>
+                @item.Body
+            </td>
+            <td>
+                @item.QuestionTypeNameNavigation!.Title
+            </td>
+            <td>
+                @if (item.NextQuestion != null)
+                {
+                    <a href="/Questions/details/@item.NextQuestion.Code"
+                       class="btn btn-light m-1">
+                        @item.NextQuestion.Code
+                    </a>
+                }
+                else
+                {
+                    var options = item.OptionCurrentQuestions
+                        .Where(s => s.NextQuestion != null).ToList();
+                    for (var i = 0;
+                    i < options.Count;i++)
+                    {
+                        <a href="/Questions/details/@options[i].NextQuestion.Code"
+                           class="btn btn-light m-1">
+                            @options[i].NextQuestion!.Code
+                        </a>
+                    }
+                    if (item.OptionCurrentQuestions.Any(a => a.NextQuestion == null))
+                    {
+                        <button class="btn btn-danger">End x @item.OptionCurrentQuestions.Count(a => a.NextQuestion == null)</button>
+                    }
+                }
+            </td>
+
+
+        </tr>
+    }
+    </tbody>
+</table>
+
+<CascadingValue Name="Show" Value=Show>
+
+    <CompPopup @ref=popUp OnResult=onPopupResult>
+        <Body>
+        <p>Do you want to remove @selectedQuestion.Code ?</p>
+        </Body>
+    </CompPopup>
+</CascadingValue>
+
+
+@code {
+    private string Keyword;
+    private List<Question> dataList = new List<Question>();
+    private Question selectedQuestion;
+
+    private CompPopup popUp;
+    private bool Show;
+
+    protected override Task OnInitializedAsync()
+    {
+        dataList = facade.QuestionsList(Keyword);
+
+        return base.OnInitializedAsync();
+    }
+
+    private void onSearch()
+    {
+        dataList = facade.QuestionsList(Keyword);
+    }
+
+    private void onClear()
+    {
+        Keyword = "";
+        dataList = facade.QuestionsList(Keyword);
+    }
+
+    private void onPopupResult(bool isAccept)
+    {
+        Show = false;
+
+        if (isAccept)
+        {
+            selectedQuestion.IsActive = false;
+            facade.context.SaveChanges();
+            dataList.Remove(selectedQuestion);
+        }
+    }
+
+    private void onDelete(int questionId)
+    {
+        Show = true;
+
+        selectedQuestion = dataList.First(s => s.Id == questionId);
+    }
+
+}

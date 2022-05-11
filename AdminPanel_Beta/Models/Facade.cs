@@ -120,5 +120,20 @@ namespace AdminPanel_Beta.Models
                 .Take(5).ToList();
         }
 
+
+        public List<Question> QuestionsList(string keyword)
+        {
+            return context.Questions
+                .Where(s => s.IsActive.Value
+                                             && (string.IsNullOrEmpty(keyword) ||
+                                                 s.Code.Contains(keyword) ||
+                                                 s.Body.Contains(keyword)))
+                .Include(s=>s.OptionCurrentQuestions)
+                .ThenInclude(s=>s.NextQuestion)
+                .Include(s=>s.NextQuestion)
+                .Include(s=>s.QuestionTypeNameNavigation)
+                .ToList();
+        }
+
     }
 }
