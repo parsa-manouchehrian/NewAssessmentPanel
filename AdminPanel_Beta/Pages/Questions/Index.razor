@@ -71,20 +71,13 @@
         <tr>
             <td>
                 <div class="w-auto">
-                    <a href="/ResultGroups/Edit/@item.Id">
-                        <button class="btn btn-light m-1">Edit</button>
-                    </a>
-                    <a href="/ResultGroups/Details/@item.Id">
-                        <button class="btn btn-primary m-1">Details</button>
-                    </a>
-
                     <button class="btn btn-danger m-1" @onclick="() => onDelete(item.Id)">Delete</button>
                 </div>
             </td>
 
             <td>
 
-                <a href="/Questions/details/@item.Code"
+                <a href="/Questions/edit/@item.Code"
                    class="btn btn-light m-1">
                     @item.Code
                 </a>
@@ -98,7 +91,7 @@
             <td>
                 @if (item.NextQuestion != null)
                 {
-                    <a href="/Questions/details/@item.NextQuestion.Code"
+                    <a href="/Questions/edit/@item.NextQuestion.Code"
                        class="btn btn-light m-1">
                         @item.NextQuestion.Code
                     </a>
@@ -110,7 +103,7 @@
                     for (var i = 0;
                     i < options.Count;i++)
                     {
-                        <a href="/Questions/details/@options[i].NextQuestion.Code"
+                        <a href="/Questions/edit/@options[i].NextQuestion.Code"
                            class="btn btn-light m-1">
                             @options[i].NextQuestion!.Code
                         </a>

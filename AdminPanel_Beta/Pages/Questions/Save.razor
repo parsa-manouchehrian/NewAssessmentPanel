@@ -1,0 +1,147 @@
+@page "/Questions/Edit/{code}"
+@page "/Questions/Add"
+@using AdminPanel_Beta.Models
+@using Microsoft.EntityFrameworkCore
+@inject Facade facade
+@inject NavigationManager NavigationManager
+
+<PageTitle>Save Question</PageTitle>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="m-1 row">
+        <div class="alert alert-danger" role="alert">
+            @message
+        </div>
+    </div>
+}
+
+
+<div class="row">
+
+    <div class="col-12">
+        <div class="float-start">
+            <h3 class="primary_text">Save Question</h3>
+        </div>
+
+        <div class="float-end">
+            <button class="btn btn-light" @onclick="onBack">Cancel</button>
+            <div class="btn btn-success" @onclick="onSave">Save</div>
+        </div>
+
+    </div>
+</div>
+
+<div class="row m-t-10">
+    <div class="col-12 m-t-10">
+        <label class="text-primary">Code:</label>
+        <input @bind="Model.Code" class="form-control"/>
+    </div>
+
+    <div class="col-12 m-t-10">
+        <label class="text-primary">Question Type:</label>
+        <select class="form-control" @bind="Model.QuestionTypeName">
+            <option value="SingleChoice">Single Choice</option>
+            <option value="MultipleChoice">Multiple Choice</option>
+        </select>
+    </div>
+    @if (Model.QuestionTypeName == SingleChoice)
+    {
+        <div class="col-12 m-t-10">
+            <label class="text-primary">Next Question:</label>
+            <QuestionLookup SelectedQuestion="@Model.NextQuestion"
+                            OnQuestionSelected="OnQuestionSelected">
+            </QuestionLookup>
+        </div>
+    }
+
+    <div class="col-12 m-t-10">
+        <label class="text-primary">Body:</label>
+        <input @bind="Model.Body" class="form-control"/>
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public string? code { get; set; }
+
+    private string message;
+    private Question Model;
+
+    private readonly string MultipleChoice = "MultipleChoice";
+    private readonly string SingleChoice = "SingleChoice";
+
+    protected override Task OnInitializedAsync()
+    {
+        if (code == null)
+        {
+            Model = new Question()
+            {
+                QuestionTypeName = SingleChoice
+            };
+        }
+        else
+        {
+            Model = facade.context.Questions
+                .Include(s=>s.OptionCurrentQuestions)
+                .ThenInclude(s=>s.NextQuestion)
+                .First(s => s.Code == code);
+        }
+        return base.OnInitializedAsync();
+    }
+
+    private void OnQuestionSelected(Question question)
+    {
+        Model.NextQuestion = question;
+    }
+
+    private void onSave()
+    {
+        
+        if (Model == null || string.IsNullOrEmpty(Model.Body)
+            || string.IsNullOrEmpty(Model.Code))
+        {
+            message = "Code and body of the question is required";
+            return;
+        }
+
+        if (!Model.OptionCurrentQuestions.Any())
+        {
+            message = "Question needs to have an option";
+            return;
+        }
+        
+        
+        if (code != null)
+        {
+            if (facade.context.Questions.Count(s => s.Code == code) > 1)
+            {
+                message = "The selected code should be Unique";
+                return;
+                
+            }
+        }
+        else
+        {
+            //added
+            facade.context.Questions.Add(Model); 
+            if (facade.context.Questions.Any(s => s.Code == code))
+            {
+                message = "The selected code should be Unique";
+                return;
+                
+            }
+        }
+
+        facade.context.SaveChanges();
+
+        onBack();
+    }
+
+    private void onBack()
+    {
+        NavigationManager.NavigateTo("Questions");
+    }
+
+}
