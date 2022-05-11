@@ -1,0 +1,127 @@
+@using AdminPanel_Beta.Models
+@inject Facade facade
+
+<div class="col-12">
+    <h3 class="primary_text float-start">Options</h3>
+    <a href="/ResultGroups/Add">
+        <button class="btn btn-success float-end">Add a new Group</button>
+    </a>
+
+</div>
+
+<br/>
+<br/>
+<br/>
+
+<table class="table table-light table-bordered table-responsive table-striped">
+    <thead>
+    <tr>
+        <th>
+            Order Index
+        </th>
+        <th>
+            Body
+        </th>
+
+        <th>
+            Next Question
+        </th>
+
+        <th>
+            Result Gorup
+        </th>
+
+        <th>
+            Point
+        </th>
+
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in dataList)
+    {
+        <tr>
+            <td>
+                @item.OrderIndex
+            </td>
+            <td>
+                @item.Body
+            </td>
+            <td>
+                @if (item.NextQuestion != null)
+                {
+                    <a href="/Questions/edit/@item.NextQuestion.Code"
+                       class="btn btn-light m-1">
+                        @item.NextQuestion.Code
+                    </a>
+                }
+                else
+                {
+                    <button
+                       class="btn btn-danger">
+                        N/A
+                    </button>
+                }
+            </td>
+            <td>
+                @item.AssessmentResultGroups.Title
+            </td>
+            <td>
+                @item.Score
+            </td>
+            <td>
+                <div class="w-auto">
+                    <a href="/ResultGroups/Edit/@item.Id">
+                        <button class="btn btn-light m-1">Edit</button>
+                    </a>
+                    <button class="btn btn-danger m-1" @onclick="() => onDelete(item.Id)">Delete</button>
+                </div>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<CascadingValue Name="Show" Value=Show>
+
+    <CompPopup @ref=popUp OnResult=onPopupResult>
+        <Body>
+        <p>Do you want to remove the selected option?</p>
+        </Body>
+    </CompPopup>
+</CascadingValue>
+
+@code {
+
+    [Parameter]
+    public List<Option> dataList { get; set; }
+
+    [Parameter]
+    public EventCallback<List<Option>> OnOptionsUpdated { get; set; }
+
+    private Option selectedOption;
+
+    private CompPopup popUp;
+    private bool Show;
+
+    private void onPopupResult(bool isAccept)
+    {
+        Show = false;
+
+        if (isAccept)
+        {
+            selectedOption.IsActive = false;
+            dataList.Remove(selectedOption);
+            OnOptionsUpdated.InvokeAsync(dataList);
+        }
+    }
+
+    private void onDelete(int id)
+    {
+        Show = true;
+
+        selectedOption = dataList.First(s => s.Id == id);
+    }
+
+}

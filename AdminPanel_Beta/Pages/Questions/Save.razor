@@ -86,6 +86,8 @@
             Model = facade.context.Questions
                 .Include(s=>s.OptionCurrentQuestions)
                 .ThenInclude(s=>s.NextQuestion)
+                .Include(s=>s.OptionCurrentQuestions)
+                .ThenInclude(s=>s.AssessmentResultGroups)
                 .First(s => s.Code == code);
         }
         return base.OnInitializedAsync();
