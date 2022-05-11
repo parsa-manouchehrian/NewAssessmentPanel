@@ -15,9 +15,6 @@
 
         <div class="float-end">
             <a href="/Questions/Add">
-                <button class="btn btn-light">Tree View</button>
-            </a>
-            <a href="/Questions/Add">
                 <button class="btn btn-success">Add</button>
             </a>
         </div>
@@ -78,7 +75,7 @@
             <td>
 
                 <a href="/Questions/edit/@item.Code"
-                   class="btn btn-light m-1">
+                   class="btn btn-primary m-1">
                     @item.Code
                 </a>
             </td>
@@ -92,7 +89,7 @@
                 @if (item.NextQuestion != null)
                 {
                     <a href="/Questions/edit/@item.NextQuestion.Code"
-                       class="btn btn-light m-1">
+                       class="btn btn-primary m-1">
                         @item.NextQuestion.Code
                     </a>
                 }
@@ -104,7 +101,7 @@
                     i < options.Count;i++)
                     {
                         <a href="/Questions/edit/@options[i].NextQuestion.Code"
-                           class="btn btn-light m-1">
+                           class="btn btn-primary m-1">
                             @options[i].NextQuestion!.Code
                         </a>
                     }

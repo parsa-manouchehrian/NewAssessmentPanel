@@ -57,9 +57,17 @@
 
     <div class="col-12 m-t-10">
         <label class="text-primary">Body:</label>
-        <input @bind="Model.Body" class="form-control"/>
+        <textarea @bind="Model.Body" class="form-control"></textarea>
     </div>
 </div>
+
+<br/>
+<br/>
+<br/>
+
+<OptionsList dataList="Model.OptionCurrentQuestions.ToList()" 
+             IsMultipleChoice="Model.QuestionTypeName == MultipleChoice" 
+             OnOptionsUpdated="OnOptUpdated"></OptionsList>
 
 @code {
 
@@ -72,13 +80,19 @@
     private readonly string MultipleChoice = "MultipleChoice";
     private readonly string SingleChoice = "SingleChoice";
 
+    private void OnOptUpdated(List<Option> options)
+    {
+        Model.OptionCurrentQuestions = options;
+    }
+
     protected override Task OnInitializedAsync()
     {
         if (code == null)
         {
             Model = new Question()
             {
-                QuestionTypeName = SingleChoice
+                QuestionTypeName = SingleChoice,
+                IsActive = true
             };
         }
         else

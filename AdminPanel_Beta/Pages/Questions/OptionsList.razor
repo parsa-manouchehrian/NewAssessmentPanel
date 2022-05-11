@@ -1,101 +1,167 @@
 @using AdminPanel_Beta.Models
 @inject Facade facade
 
-<div class="col-12">
-    <h3 class="primary_text float-start">Options</h3>
-    <a href="/ResultGroups/Add">
-        <button class="btn btn-success float-end">Add a new Group</button>
-    </a>
 
-</div>
+@if (ShowList)
+{
+    <div class="col-12">
+        <h3 class="primary_text float-start">Options</h3>
+        <button class="btn btn-success float-end" @onclick="onAdd">Add a new Option</button>
 
-<br/>
-<br/>
-<br/>
+    </div>
 
-<table class="table table-light table-bordered table-responsive table-striped">
-    <thead>
-    <tr>
-        <th>
-            Order Index
-        </th>
-        <th>
-            Body
-        </th>
+    <br/>
+    <br/>
+    <br/>
 
-        <th>
-            Next Question
-        </th>
-
-        <th>
-            Result Gorup
-        </th>
-
-        <th>
-            Point
-        </th>
-
-        <th></th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (var item in dataList)
-    {
+    <table class="table table-light table-bordered table-responsive table-striped">
+        <thead>
         <tr>
-            <td>
-                @item.OrderIndex
-            </td>
-            <td>
-                @item.Body
-            </td>
-            <td>
-                @if (item.NextQuestion != null)
-                {
-                    <a href="/Questions/edit/@item.NextQuestion.Code"
-                       class="btn btn-light m-1">
-                        @item.NextQuestion.Code
-                    </a>
-                }
-                else
-                {
-                    <button
-                       class="btn btn-danger">
-                        N/A
-                    </button>
-                }
-            </td>
-            <td>
-                @item.AssessmentResultGroups.Title
-            </td>
-            <td>
-                @item.Score
-            </td>
-            <td>
-                <div class="w-auto">
-                    <a href="/ResultGroups/Edit/@item.Id">
-                        <button class="btn btn-light m-1">Edit</button>
-                    </a>
-                    <button class="btn btn-danger m-1" @onclick="() => onDelete(item.Id)">Delete</button>
-                </div>
-            </td>
+            <th>
+                Order Index
+            </th>
+            <th>
+                Body
+            </th>
+
+            <th>
+                Next Question
+            </th>
+
+            <th>
+                Result Gorup
+            </th>
+
+            <th>
+                Point
+            </th>
+
+            <th></th>
         </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in dataList.Where(s=>s.IsActive))
+        {
+            <tr>
+                <td>
+                    @item.OrderIndex
+                </td>
+                <td>
+                    @item.Body
+                </td>
+                <td>
+                    @if (item.NextQuestion != null)
+                    {
+                        <a href="/Questions/edit/@item.NextQuestion.Code"
+                           class="btn btn-primary m-1" target="_blank">
+                            @item.NextQuestion.Code
+                        </a>
+                    }
+                    else
+                    {
+                        <button
+                            class="btn btn-danger">
+                            N/A
+                        </button>
+                    }
+                </td>
+                <td>
+                    @item.AssessmentResultGroups.Title
+                </td>
+                <td>
+                    @item.Score
+                </td>
+                <td>
+                    <div class="w-auto">
+                        <button class="btn btn-primary m-1" @onclick="() => onEdit(item.Id)">Edit</button>
+                        <button class="btn btn-danger m-1" @onclick="() => onDelete(item.Id)">Delete</button>
+                    </div>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    <CascadingValue Name="Show" Value=Show>
+
+        <CompPopup @ref=popUp OnResult=onPopupResult>
+            <Body>
+            <p>Do you want to remove the selected option?</p>
+            </Body>
+        </CompPopup>
+    </CascadingValue>
+}
+else
+{
+    @if (!string.IsNullOrEmpty(message))
+    {
+        <div class="m-1 row">
+            <div class="alert alert-danger" role="alert">
+                @message
+            </div>
+        </div>
     }
-    </tbody>
-</table>
 
-<CascadingValue Name="Show" Value=Show>
+    <div class="row">
 
-    <CompPopup @ref=popUp OnResult=onPopupResult>
-        <Body>
-        <p>Do you want to remove the selected option?</p>
-        </Body>
-    </CompPopup>
-</CascadingValue>
+        <div class="col-12">
+            <div class="float-start">
+                <h3 class="primary_text">Save Option</h3>
+            </div>
+
+            <div class="float-end">
+                <button class="btn btn-light" @onclick="onBack">Cancel</button>
+                <div class="btn btn-success" @onclick="onSave">Save</div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row m-t-10">
+        <div class="col-12 m-t-10">
+            <label class="text-primary">Order Index:</label>
+            <input @bind="selectedOption.OrderIndex" type="number" class="form-control"/>
+        </div>
+        <div class="col-12 m-t-10">
+            <label class="text-primary">Points:</label>
+            <input @bind="selectedOption.Score" type="number" class="form-control"/>
+        </div>
+        <div class="col-12 m-t-10">
+            <label class="text-primary">Result Groups:</label>
+            <select class="form-control" @bind="selectedOption.AssessmentResultGroupsId">
+                @foreach (var item in groups)
+                {
+                    <option value="@item.Id">@item.Title</option>
+                }
+            </select>
+        </div>
+        @if (IsMultipleChoice)
+        {
+            <div class="col-12 m-t-10">
+                <label class="text-primary">Next Question:</label>
+                <QuestionLookup SelectedQuestion="@selectedOption.NextQuestion"
+                                OnQuestionSelected="OnQuestionSelected">
+                </QuestionLookup>
+            </div>
+        }
+        <div class="col-12 m-t-10">
+            <label class="text-primary">Body:</label>
+            <textarea @bind="selectedOption.Body" class="form-control"></textarea>
+        </div>
+    </div>
+}
+
+  <br/>
+    <br/>
+    <br/>
 
 @code {
 
     [Parameter]
     public List<Option> dataList { get; set; }
+
+    [Parameter]
+    public bool IsMultipleChoice { get; set; }
 
     [Parameter]
     public EventCallback<List<Option>> OnOptionsUpdated { get; set; }
@@ -104,6 +170,20 @@
 
     private CompPopup popUp;
     private bool Show;
+    private bool ShowList = true;
+    private List<AssessmentResultGroup> groups;
+    private string message;
+
+    protected override Task OnInitializedAsync()
+    {
+        groups = facade.GetGroups(null);
+        return base.OnInitializedAsync();
+    }
+
+    private void OnQuestionSelected(Question question)
+    {
+        selectedOption.NextQuestion = question;
+    }
 
     private void onPopupResult(bool isAccept)
     {
@@ -112,7 +192,7 @@
         if (isAccept)
         {
             selectedOption.IsActive = false;
-            dataList.Remove(selectedOption);
+            //dataList.Remove(selectedOption);
             OnOptionsUpdated.InvokeAsync(dataList);
         }
     }
@@ -122,6 +202,52 @@
         Show = true;
 
         selectedOption = dataList.First(s => s.Id == id);
+    }
+
+    private bool isEdit = false;
+
+    private void onEdit(int id)
+    {
+        ShowList = false;
+        isEdit = true;
+        selectedOption = dataList.First(s => s.Id == id);
+    }
+
+    private void onAdd()
+    {
+        selectedOption = new Option()
+        {
+            IsActive = true
+        };
+        isEdit = false;
+        ShowList = false;
+    }
+
+    private void onSave()
+    {
+        if (string.IsNullOrEmpty(selectedOption.Body) ||
+            selectedOption.AssessmentResultGroupsId == 0)
+        {
+            message = "body and the group should be selected";
+            return;
+        }
+
+        if (!isEdit)
+        {
+            selectedOption.AssessmentResultGroups = groups.First(s => s.Id ==
+                                                                      selectedOption.AssessmentResultGroupsId);
+            dataList.Add(selectedOption);
+        }
+
+        OnOptionsUpdated.InvokeAsync(dataList);
+        onBack();
+    }
+
+
+    private void onBack()
+    {
+        selectedOption = null;
+        ShowList = true;
     }
 
 }
