@@ -1,0 +1,146 @@
+@page "/Export"
+@using AdminPanel_Beta.Models
+@using Microsoft.EntityFrameworkCore
+@using System.Text
+@inject Facade facade
+@inject IJSRuntime JSRuntime
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="m-5 row">
+        <div class="alert alert-danger" role="alert">
+            @message
+        </div>
+    </div>
+}
+
+<PageTitle>Export Data</PageTitle>
+
+
+<div class="col-12">
+    <h3 class="primary_text float-start">Export Data</h3>
+
+</div>
+
+<br/>
+<br/>
+
+<div class="row">
+    <div class="col-3"></div>
+    <div class="col-6">
+
+        <label class="primary_text fw-bold">Keyword</label><br/>
+        <input @bind="Keyword" class="form-control m-3"/>
+        <button class="btn btn-primary float-end" @onclick="onClick">Export</button>
+
+    </div>
+    <div class="col-3"></div>
+</div>
+
+<br/>
+<br/>
+<br/>
+
+
+@code {
+    private string Keyword = "";
+    private string message = null;
+
+    async Task onClick()
+    {
+        var assessments = facade.context.Assessments
+            .Include(s=>s.Subject)
+            .Include(s=>s.User)
+            .Include(s=>s.AssessmentResultGroup)
+            .Include(s=>s.UserOptionAnswers)
+            .ThenInclude(s=>s.Options)
+            .Include(s=>s.AssessmentUserResults)
+            .ThenInclude(s=>s.AssessmentResultGroup)
+            .Select(s => new
+            {
+                s.Code,
+                SubjectTitle = s.Subject.Title,
+                UserFullname = s.User == null ? "" : s.User.Firstname + " " + s.User.Lastname,
+                UserEmail = s.User == null ? "" : s.User.Email,
+                UserPhone = s.User == null ? "" : s.User.Phone,
+                s.Course,
+                s.SubmitDateTime,
+                MainResultGroup = s.AssessmentResultGroup == null ? null : s.AssessmentResultGroup.Title,
+                MainResultGroupId = s.AssessmentResultGroup == null ? 0 : s.AssessmentResultGroup.Id,
+                Options = s.UserOptionAnswers.Select(a=> new
+                {
+                    a.OptionsId,
+                    a.Options.Body
+                }).ToList(),
+                Results = s.AssessmentUserResults.Select(a=> new
+                {
+                    a.Score,
+                    a.AssessmentResultGroupId,
+                    ResultTitle = a.AssessmentResultGroup.Title
+                }).ToList()
+            }).ToList();
+
+        StringBuilder stringBuilderResults = new StringBuilder();
+        StringBuilder stringBuilderOptions = new StringBuilder();
+
+        if (!assessments.Any())
+        {
+            message = "No record has been founded.";
+            return;
+        }
+        message = null;
+
+        var firstItem = assessments.First();
+
+        string line = "";
+        string optionLine = "";
+        
+        foreach (var item in firstItem.GetType().GetProperties())
+        {
+            if (item.Name.Equals("Results"))
+            {
+                continue;
+            }else if (item.Name.Equals("Options"))
+            {
+                continue;
+            }
+            line += item.Name + ",";
+            optionLine += line;
+        }
+        line += "Score, AssessmentResultGroupId, ResultTitle";
+        optionLine += "OptionId, Body";
+        
+        stringBuilderResults.AppendLine(line);
+        stringBuilderOptions.AppendLine(optionLine);
+
+
+
+        foreach (var item in assessments)
+        {
+            line = "";
+            optionLine = "";
+            line = $"{item.Code},{item.SubjectTitle},{item.UserFullname},{item.UserEmail},{item.UserPhone}," +
+                   $"{item.Course},{item.SubmitDateTime},{item.MainResultGroup},{item.MainResultGroupId},";
+            optionLine = line;
+            foreach (var option in item.Options)
+            {
+                optionLine += $"{option.OptionsId},{option.Body}";
+            }
+            
+            foreach (var result in item.Results)
+            {
+                line += $"{result.Score},{result.AssessmentResultGroupId},{result.ResultTitle}";
+            }
+
+            stringBuilderOptions.AppendLine(optionLine);
+            stringBuilderResults.AppendLine(line);
+        }
+        
+        
+        byte[] file = System.Text.Encoding.UTF8.GetBytes(stringBuilderResults.ToString());
+        await JSRuntime.InvokeVoidAsync("BlazorDownloadFile", "answers.csv", "text/plain", file);
+        
+        byte[] file2 = System.Text.Encoding.UTF8.GetBytes(stringBuilderOptions.ToString());
+        await JSRuntime.InvokeVoidAsync("BlazorDownloadFile", "options.csv", "text/plain", file2);
+    }
+}

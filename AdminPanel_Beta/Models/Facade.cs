@@ -113,7 +113,7 @@ namespace AdminPanel_Beta.Models
         public List<Question> QuestionLookup(string keyword)
         {
             
-            return getQuestions().Where(s => s.IsActive.Value
+            return getQuestions().Where(s => (s.IsActive != null && s.IsActive.Value)
                                            && (string.IsNullOrEmpty(keyword) ||
                                                s.Code.Contains(keyword) ||
                                                s.Body.Contains(keyword)))
