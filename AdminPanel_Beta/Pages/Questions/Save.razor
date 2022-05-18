@@ -43,11 +43,11 @@
     <div class="col-12 m-t-10">
         <label class="text-primary">Question Type:</label>
         <select class="form-control" @bind="Model.QuestionTypeName">
-            <option value="SingleChoice">Single Choice</option>
-            <option value="MultipleChoice">Multiple Choice</option>
+            <option value="SingleChoice">Multiple Choice</option>
+            <option value="MultipleChoice">Multi Select</option>
         </select>
     </div>
-    @if (Model.QuestionTypeName == SingleChoice)
+    @if (Model.QuestionTypeName == MultipleChoice)
     {
         <div class="col-12 m-t-10">
             <label class="text-primary">Next Question:</label>
