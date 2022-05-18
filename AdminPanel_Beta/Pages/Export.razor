@@ -4,6 +4,8 @@
 @using System.Text
 @inject Facade facade
 @inject IJSRuntime JSRuntime
+@attribute [Authorize]
+
 
 @if (!string.IsNullOrEmpty(message))
 {

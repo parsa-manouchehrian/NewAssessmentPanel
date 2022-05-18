@@ -3,6 +3,8 @@
 @using AdminPanel_Beta.Models
 @inject Facade facade
 @inject NavigationManager NavigationManager
+@attribute [Authorize]
+
 
 @if (!string.IsNullOrEmpty(message))
 {

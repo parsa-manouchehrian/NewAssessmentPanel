@@ -1,5 +1,7 @@
 @using AdminPanel_Beta.Models
 @inject Facade facade
+@attribute [Authorize]
+
 
 @if (SelectedQuestion == null)
 {

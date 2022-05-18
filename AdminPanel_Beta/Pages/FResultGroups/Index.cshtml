@@ -1,5 +1,9 @@
 @page
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model AdminPanel_Beta.Pages.FResultGroups.IndexModel
+@attribute [Authorize]
+
 
 @{
     ViewData["Title"] = "Index";

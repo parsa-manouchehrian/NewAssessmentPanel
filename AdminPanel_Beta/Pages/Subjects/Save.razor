@@ -4,6 +4,8 @@
 @using AdminPanel_Beta.Pages.Questions
 @inject Facade facade
 @inject NavigationManager NavigationManager
+@attribute [Authorize]
+
 
 
 @if (!string.IsNullOrEmpty(message))

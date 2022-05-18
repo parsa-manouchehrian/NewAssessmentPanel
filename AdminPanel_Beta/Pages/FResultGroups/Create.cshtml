@@ -1,5 +1,8 @@
 @page
 @model AdminPanel_Beta.Pages.FResultGroups.CreateModel
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
 
 @{
     ViewData["Title"] = "Create";

@@ -1,5 +1,9 @@
 @page
+@using Microsoft.AspNetCore.Authorization
 @model AdminPanel_Beta.Pages.FResultGroups.EditModel
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@attribute [Authorize]
+
 
 @{
     ViewData["Title"] = "Edit";

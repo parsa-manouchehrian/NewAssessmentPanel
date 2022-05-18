@@ -1,6 +1,8 @@
 @using AdminPanel_Beta.Models
 @inject Facade facade
 @page "/ResultGroups/Details/{groupId:int}/hints"
+@attribute [Authorize]
+
 
 <div class="col-12">
     <h3 class="primary_text float-start">Hints</h3>

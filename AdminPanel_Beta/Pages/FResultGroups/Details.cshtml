@@ -1,5 +1,8 @@
 @page
 @model AdminPanel_Beta.Pages.FResultGroups.DetailsModel
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
 
 @{
     ViewData["Title"] = "Details";
