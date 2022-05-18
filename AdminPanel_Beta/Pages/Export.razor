@@ -32,7 +32,15 @@
     <div class="col-6">
 
         <label class="primary_text fw-bold">Keyword</label><br/>
-        <input @bind="Keyword" class="form-control m-3"/>
+        <input @bind="Keyword" class="form-control m-3"/> <br/>
+        <label class="primary_text fw-bold">Subjects</label><br/>
+        <select @bind="subjectId" class="form-control m-3">
+            <option value="-1">All Subjects</option>
+            @foreach (var item in subjects)
+            {
+                <option value="@item.Id">@item.Title</option>
+            }
+        </select>
         <button class="btn btn-primary float-end" @onclick="onClick">Export</button>
 
     </div>
@@ -47,6 +55,14 @@
 @code {
     private string Keyword = "";
     private string message = null;
+    private List<Subject> subjects;
+    private int subjectId = -1;
+
+    protected override Task OnInitializedAsync()
+    {
+        subjects = facade.context.Subjects.ToList();
+        return base.OnInitializedAsync();
+    }
 
     async Task onClick()
     {
@@ -58,6 +74,10 @@
             .ThenInclude(s=>s.Options)
             .Include(s=>s.AssessmentUserResults)
             .ThenInclude(s=>s.AssessmentResultGroup)
+            .Where(s=>
+                (Keyword == null || s.User.Email.Contains(Keyword) || s.User.Phone.Contains(Keyword))
+                && (subjectId ==-1 || s.SubjectId == subjectId)
+                )
             .Select(s => new
             {
                 s.Code,
@@ -72,7 +92,10 @@
                 Options = s.UserOptionAnswers.Select(a=> new
                 {
                     a.OptionsId,
-                    a.Options.Body
+                    a.Options.Body,
+                    QuestionBody = a.Options.CurrentQuestion.Body,
+                    QuestionCode = a.Options.CurrentQuestion.Code,
+                    QuestionId = a.Options.CurrentQuestion.Id
                 }).ToList(),
                 Results = s.AssessmentUserResults.Select(a=> new
                 {
@@ -102,15 +125,16 @@
             if (item.Name.Equals("Results"))
             {
                 continue;
-            }else if (item.Name.Equals("Options"))
+            }
+            if (item.Name.Equals("Options"))
             {
                 continue;
             }
             line += item.Name + ",";
-            optionLine += line;
+            optionLine += item.Name + ",";
         }
         line += "Score, AssessmentResultGroupId, ResultTitle";
-        optionLine += "OptionId, Body";
+        optionLine += "QuestionId,QuestionCode,QuestionBody,OptionId, Body";
         
         stringBuilderResults.AppendLine(line);
         stringBuilderOptions.AppendLine(optionLine);
@@ -119,23 +143,28 @@
 
         foreach (var item in assessments)
         {
-            line = "";
-            optionLine = "";
-            line = $"{item.Code},{item.SubjectTitle},{item.UserFullname},{item.UserEmail},{item.UserPhone}," +
-                   $"{item.Course},{item.SubmitDateTime},{item.MainResultGroup},{item.MainResultGroupId},";
-            optionLine = line;
+            
             foreach (var option in item.Options)
             {
-                optionLine += $"{option.OptionsId},{option.Body}";
-            }
-            
-            foreach (var result in item.Results)
-            {
-                line += $"{result.Score},{result.AssessmentResultGroupId},{result.ResultTitle}";
+                optionLine = "";
+
+                optionLine +=  $"{item.Code},{item.SubjectTitle},{item.UserFullname},{item.UserEmail},{item.UserPhone}," +
+                               $"{item.Course},{item.SubmitDateTime},{item.MainResultGroup},{item.MainResultGroupId},";
+                optionLine += $"{option.QuestionId},{option.QuestionCode},{option.QuestionBody},{option.OptionsId},{option.Body}";
+                stringBuilderOptions.AppendLine(optionLine);
+
             }
 
-            stringBuilderOptions.AppendLine(optionLine);
-            stringBuilderResults.AppendLine(line);
+            foreach (var result in item.Results)
+            {
+                line = "";
+
+                line += $"{item.Code},{item.SubjectTitle},{item.UserFullname},{item.UserEmail},{item.UserPhone}," +
+                        $"{item.Course},{item.SubmitDateTime},{item.MainResultGroup},{item.MainResultGroupId},";
+                
+                line += $"{result.Score},{result.AssessmentResultGroupId},{result.ResultTitle}";
+                stringBuilderResults.AppendLine(line);
+            }
         }
         
         
